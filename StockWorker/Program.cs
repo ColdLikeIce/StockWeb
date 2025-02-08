@@ -1,5 +1,10 @@
+using CommonCore;
+using CommonCore.Dependency;
+using CommonCore.Enum;
+using Microsoft.EntityFrameworkCore;
 using Serilog;
 using StockWorker;
+using StockWorker.Db;
 
 public class Program
 {
@@ -54,7 +59,12 @@ public class Program
                 });
 
                 // 配置定时服务
-                services.AddHostedService<Worker>();
+                services.AddAutoIoc(typeof(IScopedDependency), LifeCycle.Scoped);
+                services.AddHostedService<StockDataWorker>();
+                services.AddHyTripEntityFramework<CarDbContext>(options =>
+                {
+                    options.UseSqlServer(hostContext.Configuration.GetConnectionString("CarRentalDb"));
+                });
             })
             .UseSerilog(); // 确保 Serilog 在 HostBuilder 中被使用
 }
