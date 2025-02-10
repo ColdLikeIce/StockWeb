@@ -61,6 +61,7 @@ public class Program
                 // 配置定时服务
                 services.AddAutoIoc(typeof(IScopedDependency), LifeCycle.Scoped);
                 services.AddHostedService<StockDataWorker>();
+                //services.AddHostedService<Worker>();
                 services.AddHyTripEntityFramework<CarDbContext>(options =>
                 {
                     options.UseSqlServer(hostContext.Configuration.GetConnectionString("CarRentalDb"));

@@ -7,10 +7,12 @@ using Newtonsoft.Json.Linq;
 using Serilog;
 using StockWorker.Db;
 using StockWorker.Db.entity;
+using StockWorker.Helper;
 using StockWorker.Model;
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Drawing.Printing;
 using System.Linq;
 using System.Reflection.Metadata;
 using System.Text;
@@ -34,41 +36,169 @@ namespace StockWorker.Service
 
         public async Task<bool> RunHotStock()
         {
-            JQClient jQClient = new JQClient();
+            JQClientHelper jQClient = new JQClientHelper();
             var token = jQClient.GetToken("18826222483", "DDDfff123");
-            //await GetAllStock();
+            while (true)
+            {
+                var res = jQClient.GetPrice("002025", 1, "1m");
+            }
+            await GetAllStock();
             await GetGroupInfo();
             return true;
+        }
+
+        private async Task<int> GetTotalPagesAsync(HttpClient client, string baseUrl)
+        {
+            // 请求第一页数据以获取总页数
+            string url = $"{baseUrl}&pn=1";
+            HttpResponseMessage response = await client.GetAsync(url);
+            if (response.IsSuccessStatusCode)
+            {
+                string responseData = await response.Content.ReadAsStringAsync();
+                // 移除回调函数的部分，保留 JSON 数据
+                responseData = responseData.Substring(responseData.IndexOf('(') + 1, responseData.LastIndexOf(')') - responseData.IndexOf('(') - 1);
+
+                JObject json = JObject.Parse(responseData);
+                int total = (int)json["data"]["total"];
+                return total;
+                int pageSize = (int)json["data"]["size"];
+                return (int)Math.Ceiling((double)total / pageSize); // 计算总页数
+            }
+            return 0;
         }
 
         public async Task GetAllStock()
         {
             var stockList = _carrepository.GetRepository<StockData>().Query().ToList();
-            string baseUrl = "http://push2.eastmoney.com/api/qt/clist/get";
-            int pageSize = 100;
-            int totalStocks = 6000;
-            List<StockData> allStocks = new List<StockData>();
-            //await GetInfo("");
+            // 定义基础URL（不包含pn参数）
+            /*    string baseUrl = "https://push2.eastmoney.com/api/qt/clist/get?np=1&fltt=1&invt=2&cb=jQuery37102442809214882955_1739119008152&fs=m%3A0%2Bt%3A6%2Cm%3A0%2Bt%3A80%2Cm%3A1%2Bt%3A2%2Cm%3A1%2Bt%3A23%2Cm%3A0%2Bt%3A81%2Bs%3A2048&fields=f12%2Cf13%2Cf14%2Cf1%2Cf2%2Cf4%2Cf3%2Cf152%2Cf5%2Cf6%2Cf7%2Cf15%2Cf18%2Cf16%2Cf17%2Cf10%2Cf8%2Cf9%2Cf23&fid=f3&pz=100&po=1&dect=1&ut=fa5fd1943c7b386f172d6893dbfba10b&wbp2u=%7C0%7C0%7C0%7Cweb&_=1739119008205";
+                int pageSize = 100;
+                int totalStocks = 6000;
+                List<StockData> allStocks = new List<StockData>();
+                //await GetInfo("");
+                using (HttpClient client = new HttpClient())
+                {
+                    try
+                    {
+                        // 分页获取所有股票数据
+                        for (int page = 1; page <= (totalStocks / pageSize) + 1; page++)
+                        {
+                            Log.Information($"执行{page}");
+                            string apiUrl = $"{baseUrl}?pn={page}";
+
+                            HttpResponseMessage response = await client.GetAsync(apiUrl);
+                            response.EnsureSuccessStatusCode(); // 确保请求成功
+                            string responseBody = await response.Content.ReadAsStringAsync();
+
+                            // 解析JSON数据
+                            JObject json = JObject.Parse(responseBody);
+                            totalStocks = (int)json["data"]["total"];
+                            var qq = (totalStocks / pageSize) + 1;
+                            JArray stocks = (JArray)json["data"]["diff"]; // 返回的数据在data->diff中
+
+                            foreach (var stock in stocks)
+                            {
+                                try
+                                {
+                                    string stockCode = (string)stock["f12"];
+                                    var dbItem = stockList.FirstOrDefault(n => n.Code == stockCode);
+                                    if (dbItem != null)
+                                    {
+                                        continue;
+                                    }
+
+                                    string stockName = (string)stock["f14"];
+                                    string stockPrice = (string)stock["f2"];
+                                    decimal.TryParse(stockPrice, out decimal price);
+                                    var type = 0;
+                                    if (stockCode.StartsWith("300"))
+                                    {
+                                        type = 2;
+                                    }
+                                    else if (stockCode.StartsWith("688"))
+                                    {
+                                        type = -1;
+                                    }
+                                    else if (stockCode.StartsWith("8"))
+                                    {
+                                        type = -2;
+                                    }
+                                    else
+                                    {
+                                        type = 1;
+                                    }
+
+                                    allStocks.Add(new StockData
+                                    {
+                                        Code = stockCode,
+                                        Name = stockName,
+                                        Price = price,
+                                        Type = type
+                                    });
+                                }
+                                catch (Exception ex)
+                                {
+                                    var q = 23;
+                                }
+                            }
+                        }
+                        // 输出所有股票数据
+                        Console.WriteLine($"\n共获取 {allStocks.Count} 数据");
+                        await _carrepository.GetRepository<StockData>().BatchInsertAsync(allStocks);
+                    }
+                    catch (HttpRequestException e)
+                    {
+                        Console.WriteLine($"请求出错: {e.Message}");
+                    }
+                }*/
+
+            // 定义基础URL（不包含pn参数）
+            string baseUrl = "https://push2.eastmoney.com/api/qt/clist/get?np=1&fltt=1&invt=2&cb=jQuery37102442809214882955_1739119008152&fs=m%3A0%2Bt%3A6%2Cm%3A0%2Bt%3A80%2Cm%3A1%2Bt%3A2%2Cm%3A1%2Bt%3A23%2Cm%3A0%2Bt%3A81%2Bs%3A2048&fields=f12%2Cf13%2Cf14%2Cf1%2Cf2%2Cf4%2Cf3%2Cf152%2Cf5%2Cf6%2Cf7%2Cf15%2Cf18%2Cf16%2Cf17%2Cf10%2Cf8%2Cf9%2Cf23&fid=f3&po=1&dect=1&ut=fa5fd1943c7b386f172d6893dbfba10b&wbp2u=%7C0%7C0%7C0%7Cweb&_=1739119008205";
+
+            // 创建HttpClient实例
             using (HttpClient client = new HttpClient())
             {
-                try
-                {
-                    // 分页获取所有股票数据
-                    for (int page = 1; page <= (totalStocks / pageSize) + 1; page++)
-                    {
-                        Log.Information($"执行{page}");
-                        string apiUrl = $"{baseUrl}?pn={page}&pz={pageSize}&po=1&np=1&fltt=2&invt=2&fid=f3&fs=m:0+t:6,m:0+t:13,m:0+t:80&fields=f1,f2,f3,f4,f5,f6,f7,f8,f9,f10,f12,f13,f14,f15,f16,f17,f18,f20,f21,f23,f24,f25,f22,f11,f62,f128,f136,f115,f152";
+                // 设置请求头
+                client.DefaultRequestHeaders.Add("Accept", "*/*");
+                client.DefaultRequestHeaders.Add("Accept-Language", "zh-CN,zh;q=0.9");
+                client.DefaultRequestHeaders.Add("Connection", "keep-alive");
+                client.DefaultRequestHeaders.Add("Referer", "https://quote.eastmoney.com/center/gridlist.html");
+                client.DefaultRequestHeaders.Add("Sec-Fetch-Dest", "script");
+                client.DefaultRequestHeaders.Add("Sec-Fetch-Mode", "no-cors");
+                client.DefaultRequestHeaders.Add("Sec-Fetch-Site", "same-site");
+                client.DefaultRequestHeaders.Add("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/135.0.0.0 Safari/537.36");
+                client.DefaultRequestHeaders.Add("sec-ch-ua", "\"Google Chrome\";v=\"135\", \"Not-A.Brand\";v=\"8\", \"Chromium\";v=\"135\"");
+                client.DefaultRequestHeaders.Add("sec-ch-ua-mobile", "?0");
+                client.DefaultRequestHeaders.Add("sec-ch-ua-platform", "\"Windows\"");
 
-                        HttpResponseMessage response = await client.GetAsync(apiUrl);
-                        response.EnsureSuccessStatusCode(); // 确保请求成功
-                        string responseBody = await response.Content.ReadAsStringAsync();
+                // 获取总页数
+                int totalStocks = await GetTotalPagesAsync(client, baseUrl);
+                if (totalStocks == 0)
+                {
+                    Console.WriteLine("无法获取总页数。");
+                    return;
+                }
+                var pageSize = 100;
+                // 遍历所有页面
+                for (int page = 1; page <= (totalStocks / pageSize) + 1; page++)
+                {
+                    // 构建当前页的URL
+                    string url = $"{baseUrl}&pn={page}&pz={pageSize}";
+
+                    // 发送GET请求
+                    HttpResponseMessage response = await client.GetAsync(url);
+                    if (response.IsSuccessStatusCode)
+                    {
+                        // 读取响应内容
+                        string responseData = await response.Content.ReadAsStringAsync();
+                        responseData = responseData.Substring(responseData.IndexOf('(') + 1, responseData.LastIndexOf(')') - responseData.IndexOf('(') - 1);
 
                         // 解析JSON数据
-                        JObject json = JObject.Parse(responseBody);
-                        totalStocks = (int)json["data"]["total"];
-                        var qq = (totalStocks / pageSize) + 1;
-                        JArray stocks = (JArray)json["data"]["diff"]; // 返回的数据在data->diff中
+                        JObject json = JObject.Parse(responseData);
 
+                        // 提取当前页的股票数据
+                        JArray stocks = (JArray)json["data"]["diff"];
+                        List<StockData> allStocks = new List<StockData>();
                         foreach (var stock in stocks)
                         {
                             try
@@ -114,14 +244,9 @@ namespace StockWorker.Service
                                 var q = 23;
                             }
                         }
+
+                        await _carrepository.GetRepository<StockData>().BatchInsertAsync(allStocks);
                     }
-                    // 输出所有股票数据
-                    Console.WriteLine($"\n共获取 {allStocks.Count} 数据");
-                    await _carrepository.GetRepository<StockData>().BatchInsertAsync(allStocks);
-                }
-                catch (HttpRequestException e)
-                {
-                    Console.WriteLine($"请求出错: {e.Message}");
                 }
             }
         }

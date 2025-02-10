@@ -94,6 +94,7 @@ namespace StockWorker.Service
                new DemoModel{Name="zxcb",Url="https://quote.eastmoney.com/sz300788.html",origin=35.65M,count=0},
                new DemoModel {Name="mly",Url ="https://quote.eastmoney.com/SZ000815.html",origin=2,count=0},
                new DemoModel{Name="tr",Url="https://quote.eastmoney.com/sz002150.html",origin=12.141M,count=0},
+               new DemoModel{Name="mrhd",Url="https://quote.eastmoney.com/sz300766.html",origin=1,count=1},
                new DemoModel {Name="ayjk",Url="https://quote.eastmoney.com/SZ002172.html",origin=3.792M,count=0}, //3500
                new DemoModel {Name="hh",Url="https://quote.eastmoney.com/sh600221.html",origin = 1.881M,count=0},
                new DemoModel {Name="jqkj",Url="https://quote.eastmoney.com/sh603083.html",origin=1,count=0},
