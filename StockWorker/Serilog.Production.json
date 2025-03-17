@@ -23,7 +23,7 @@
         "Name": "File",
         "Args": {
           "encoding": "System.Text.Encoding::UTF8",
-          "path": "D:\\Person\\StockWorker\\StockWorker\\bin\\Release\\net6.0\\publish\\Logs\\CarPriceService.txt",
+          "path": "D:\\Person\\Logs\\log.log",
           "rollingInterval": "3",
           "outputTemplate": "[{Timestamp:yyyy-MM-dd HH:mm:ss.fff}] <{ThreadId}> [{Level:u3}] {Message:lj}{NewLine}{Exception}"
         }

@@ -14,5 +14,7 @@ namespace StockWorker.Service
         /// </summary>
         /// <returns></returns>
         Task<bool> RunHotStock();
+
+        Task<bool> JustRun(bool justLog = true);
     }
 }

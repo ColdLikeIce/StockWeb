@@ -17,8 +17,8 @@ namespace StockWorker.Helper
 
         //
         // 摘要:
-        //     Token
-        public string Token { get; private set; }
+        //     token
+        public string token { get; private set; }
 
         private string PostRequest(string body)
         {
@@ -40,7 +40,7 @@ namespace StockWorker.Helper
         //
         // 返回结果:
         //     返回 token 5b6a9ba7b0f572bb6c287e280ed
-        public string GetToken(string mob, string pwd)
+        public string Gettoken(string mob, string pwd)
         {
             try
             {
@@ -53,14 +53,14 @@ namespace StockWorker.Helper
                     mob = mob,
                     pwd = pwd
                 });
-                Token = PostRequest(body);
+                token = PostRequest(body);
             }
             catch
             {
-                Token = string.Empty;
+                token = string.Empty;
             }
 
-            return Token;
+            return token;
         }
 
         //
@@ -74,7 +74,7 @@ namespace StockWorker.Helper
         //
         // 返回结果:
         //     返回 token 5b6a9ba7b0f572bb6c287e280ed
-        public string GetCurrentToken(string mob, string pwd)
+        public string GetCurrenttoken(string mob, string pwd)
         {
             try
             {
@@ -87,14 +87,14 @@ namespace StockWorker.Helper
                     mob = mob,
                     pwd = pwd
                 });
-                Token = PostRequest(body);
+                token = PostRequest(body);
             }
             catch
             {
-                Token = string.Empty;
+                token = string.Empty;
             }
 
-            return Token;
+            return token;
         }
 
         //
@@ -105,15 +105,15 @@ namespace StockWorker.Helper
         //     100000
         public int GetQueryCount()
         {
-            if (string.IsNullOrEmpty(Token))
+            if (string.IsNullOrEmpty(token))
             {
-                throw new Exception("Token is empty");
+                throw new Exception("token is empty");
             }
 
             string body = JsonSerializer.Serialize(new
             {
                 method = "get_query_count",
-                Token = Token
+                token = token
             });
             int.TryParse(PostRequest(body), out var result);
             return result;
@@ -138,15 +138,15 @@ namespace StockWorker.Helper
         //     000001.XSHE,平安银行,PAYH,1991-04-03,2200-01-01,stock 000002.XSHE,万科A,WKA,1991-01-29,2200-01-01,stock
         public Security[] GetAllSecurities(string code, string date)
         {
-            if (string.IsNullOrEmpty(Token))
+            if (string.IsNullOrEmpty(token))
             {
-                throw new Exception("Token is empty");
+                throw new Exception("token is empty");
             }
 
             string body = JsonSerializer.Serialize(new
             {
                 method = "get_all_securities",
-                Token = Token,
+                token = token,
                 code = code,
                 date = date
             });
@@ -188,15 +188,15 @@ namespace StockWorker.Helper
         //     parent: 分级基金的母基金代码 code,display_name,name,start_date,end_date,type,parent 502050.XSHG,上证50B,SZ50B,2015-04-27,2200-01-01,fjb,502048.XSHG
         public Security GetSecurityInfo(string code)
         {
-            if (string.IsNullOrEmpty(Token))
+            if (string.IsNullOrEmpty(token))
             {
-                throw new Exception("Token is empty");
+                throw new Exception("token is empty");
             }
 
             string body = JsonSerializer.Serialize(new
             {
                 method = "get_security_info",
-                Token = Token,
+                token = token,
                 code = code
             });
             string[] array = PostRequest(body).Split('\n');
@@ -251,15 +251,15 @@ namespace StockWorker.Helper
         //     获取各种时间周期的bar数据，bar的分割方式与主流股票软件相同， 同时还支持返回当前时刻所在 bar 的数据
         public Bar[] GetPrice(string code, int count, string unit)
         {
-            if (string.IsNullOrEmpty(Token))
+            if (string.IsNullOrEmpty(token))
             {
-                throw new Exception("Token is empty");
+                throw new Exception("token is empty");
             }
 
             string body = JsonSerializer.Serialize(new
             {
                 method = "get_price",
-                token = Token,
+                token = token,
                 code = $"600000.XSHG",
                 count = count,
                 unit = unit,
@@ -344,15 +344,15 @@ namespace StockWorker.Helper
         //     最大获取1000个交易日数据
         public string GetPricePeriod(string code, string unit, string date, string end_date, string fq_ref_date)
         {
-            if (string.IsNullOrEmpty(Token))
+            if (string.IsNullOrEmpty(token))
             {
-                throw new Exception("Token is empty");
+                throw new Exception("token is empty");
             }
 
             StringContent content = new StringContent(JsonSerializer.Serialize(new
             {
                 method = "get_price_period",
-                Token = Token,
+                token = token,
                 code = code,
                 unit = unit,
                 date = date,
@@ -382,15 +382,15 @@ namespace StockWorker.Helper
         //     code: 标的代码 current: 当前价格 code,current 000001.XSHE,13.35 600600.XSHG,42.4
         public string GetCurrentPrice(string code)
         {
-            if (string.IsNullOrEmpty(Token))
+            if (string.IsNullOrEmpty(token))
             {
-                throw new Exception("Token is empty");
+                throw new Exception("token is empty");
             }
 
             string body = JsonSerializer.Serialize(new
             {
                 method = "get_current_price",
-                Token = Token,
+                token = token,
                 code = code
             });
             return PostRequest(body);
@@ -417,15 +417,15 @@ namespace StockWorker.Helper
         //     date: 对应交易日 标的因子值 date,000001.XSHE 2019-06-25,0.989576 2019-06-26,1.000000
         public string GetFqFactor(string code, string fq, string date, string end_date)
         {
-            if (string.IsNullOrEmpty(Token))
+            if (string.IsNullOrEmpty(token))
             {
-                throw new Exception("Token is empty");
+                throw new Exception("token is empty");
             }
 
             string body = JsonSerializer.Serialize(new
             {
                 method = "get_fq_factor",
-                Token = Token,
+                token = token,
                 code = code,
                 fq = fq,
                 date = date,
@@ -446,15 +446,15 @@ namespace StockWorker.Helper
         //     股票代码列表 000029.XSHE 000333.XSHE
         public string GetPauseStocks(string date)
         {
-            if (string.IsNullOrEmpty(Token))
+            if (string.IsNullOrEmpty(token))
             {
-                throw new Exception("Token is empty");
+                throw new Exception("token is empty");
             }
 
             string body = JsonSerializer.Serialize(new
             {
                 method = "get_pause_stocks",
-                Token = Token,
+                token = token,
                 date = date
             });
             return PostRequest(body);
@@ -481,15 +481,15 @@ namespace StockWorker.Helper
         //     000002.XSHE,2019-09-20 09:25:03,26.8900,260700,701.0200,17280,16500,3700,1500,4700,26.8900,26.9000,26.9100,26.9200,26.9300,700,53000,700,6100,44100,26.8700,26.8500,26.8400,26.8200,26.8100
         public string GetCallAuction(string code, string date, string end_date)
         {
-            if (string.IsNullOrEmpty(Token))
+            if (string.IsNullOrEmpty(token))
             {
-                throw new Exception("Token is empty");
+                throw new Exception("token is empty");
             }
 
             string body = JsonSerializer.Serialize(new
             {
                 method = "get_call_auction",
-                Token = Token,
+                token = token,
                 code = code,
                 date = date,
                 end_date = end_date
@@ -512,15 +512,15 @@ namespace StockWorker.Helper
         //     20190129150003.000,11.0,11.07,10.77,82663110,904847854.07,,302833,195900,453000,437662,861700,11.0,11.01,11.02,11.03,11.04,502000,113100,102100,186800,176700,10.99,10.98,10.97,10.96,10.95
         public string GetCurrentTick(string code)
         {
-            if (string.IsNullOrEmpty(Token))
+            if (string.IsNullOrEmpty(token))
             {
-                throw new Exception("Token is empty");
+                throw new Exception("token is empty");
             }
 
             string body = JsonSerializer.Serialize(new
             {
                 method = "get_current_tick",
-                Token = Token,
+                token = token,
                 code = code
             });
             return PostRequest(body);
@@ -542,15 +542,15 @@ namespace StockWorker.Helper
         //     000002.XSHE,20190408113000.000,31.58,32.8,31.54,42866139,1379238397.85,,700,9400,700,6700,1100,31.58,31.6,31.62,31.66,31.68,12732,8900,10600,87800,44500,31.55,31.54,31.53,31.52,31.51
         public string GetCurrentTicks(string code)
         {
-            if (string.IsNullOrEmpty(Token))
+            if (string.IsNullOrEmpty(token))
             {
-                throw new Exception("Token is empty");
+                throw new Exception("token is empty");
             }
 
             string body = JsonSerializer.Serialize(new
             {
                 method = "get_current_ticks",
-                Token = Token,
+                token = token,
                 code = code
             });
             return PostRequest(body);
@@ -587,15 +587,15 @@ namespace StockWorker.Helper
         //     如果时间跨度太大、数据量太多则可能导致请求超时，所有请控制好data-end_date之间的间隔！
         public string GetTicks(string code, string count, string end_date, bool skip = true)
         {
-            if (string.IsNullOrEmpty(Token))
+            if (string.IsNullOrEmpty(token))
             {
-                throw new Exception("Token is empty");
+                throw new Exception("token is empty");
             }
 
             string body = JsonSerializer.Serialize(new
             {
                 method = "get_ticks",
-                Token = Token,
+                token = token,
                 code = code,
                 count = count,
                 end_date = end_date,
@@ -635,15 +635,15 @@ namespace StockWorker.Helper
         //     如果时间跨度太大、数据量太多则可能导致请求超时，所有请控制好data-end_date之间的间隔！
         public string GetTicksPeriod(string code, string date, string end_date, bool skip)
         {
-            if (string.IsNullOrEmpty(Token))
+            if (string.IsNullOrEmpty(token))
             {
-                throw new Exception("Token is empty");
+                throw new Exception("token is empty");
             }
 
             string body = JsonSerializer.Serialize(new
             {
                 method = "get_ticks_period",
-                Token = Token,
+                token = token,
                 code = code,
                 date = date,
                 end_date = end_date,
@@ -672,15 +672,15 @@ namespace StockWorker.Helper
         //     场外基金的复权净值。场外基金使用 date,is_st 2018-05-29,0 2018-05-30,0
         public string GetExtras(string code, string date, string end_date)
         {
-            if (string.IsNullOrEmpty(Token))
+            if (string.IsNullOrEmpty(token))
             {
-                throw new Exception("Token is empty");
+                throw new Exception("token is empty");
             }
 
             string body = JsonSerializer.Serialize(new
             {
                 method = "get_extras",
-                Token = Token,
+                token = token,
                 code = code,
                 date = date,
                 end_date = end_date
@@ -725,15 +725,15 @@ namespace StockWorker.Helper
         //     }
         public string GetFundInfo(string code, string date)
         {
-            if (string.IsNullOrEmpty(Token))
+            if (string.IsNullOrEmpty(token))
             {
-                throw new Exception("Token is empty");
+                throw new Exception("token is empty");
             }
 
             string body = JsonSerializer.Serialize(new
             {
                 method = "get_fund_info",
-                Token = Token,
+                token = token,
                 code = code,
                 date = date
             });
@@ -755,15 +755,15 @@ namespace StockWorker.Helper
         //     股票代码 000001.XSHE 000002.XSHE
         public string GetIndexStocks(string code, string date)
         {
-            if (string.IsNullOrEmpty(Token))
+            if (string.IsNullOrEmpty(token))
             {
-                throw new Exception("Token is empty");
+                throw new Exception("token is empty");
             }
 
             string body = JsonSerializer.Serialize(new
             {
                 method = "get_index_stocks",
-                Token = Token,
+                token = token,
                 code = code,
                 date = date
             });
@@ -786,15 +786,15 @@ namespace StockWorker.Helper
         //     000001.XSHE,平安银行,2018-01-09,0.9730 000002.XSHE,万科A,2018-01-09,1.2870
         public string GetIndexWeights(string code, string date)
         {
-            if (string.IsNullOrEmpty(Token))
+            if (string.IsNullOrEmpty(token))
             {
-                throw new Exception("Token is empty");
+                throw new Exception("token is empty");
             }
 
             string body = JsonSerializer.Serialize(new
             {
                 method = "get_index_weights",
-                Token = Token,
+                token = token,
                 code = code,
                 date = date
             });
@@ -814,15 +814,15 @@ namespace StockWorker.Helper
         //     850112,粮食种植III,2014-02-21
         public string GetIndestries(string code)
         {
-            if (string.IsNullOrEmpty(Token))
+            if (string.IsNullOrEmpty(token))
             {
-                throw new Exception("Token is empty");
+                throw new Exception("token is empty");
             }
 
             string body = JsonSerializer.Serialize(new
             {
                 method = "get_industries",
-                Token = Token,
+                token = token,
                 code = code
             });
             return PostRequest(body);
@@ -843,15 +843,15 @@ namespace StockWorker.Helper
         //     返回股票代码的list 000001.XSHE 000002.XSHE
         public string GetIndustry(string code, string date)
         {
-            if (string.IsNullOrEmpty(Token))
+            if (string.IsNullOrEmpty(token))
             {
-                throw new Exception("Token is empty");
+                throw new Exception("token is empty");
             }
 
             string body = JsonSerializer.Serialize(new
             {
                 method = "get_industry",
-                Token = Token,
+                token = token,
                 code = code,
                 date = date
             });
@@ -873,15 +873,15 @@ namespace StockWorker.Helper
         //     返回股票代码的list 000001.XSHE 000002.XSHE
         public string GetIndestryStocks(string code, string date)
         {
-            if (string.IsNullOrEmpty(Token))
+            if (string.IsNullOrEmpty(token))
             {
-                throw new Exception("Token is empty");
+                throw new Exception("token is empty");
             }
 
             string body = JsonSerializer.Serialize(new
             {
                 method = "get_industry_stocks",
-                Token = Token,
+                token = token,
                 code = code,
                 date = date
             });
@@ -897,15 +897,15 @@ namespace StockWorker.Helper
         //     GN028,智能电网,2013-12-31
         public string GetConcepts()
         {
-            if (string.IsNullOrEmpty(Token))
+            if (string.IsNullOrEmpty(token))
             {
-                throw new Exception("Token is empty");
+                throw new Exception("token is empty");
             }
 
             string body = JsonSerializer.Serialize(new
             {
                 method = "get_concepts",
-                Token = Token
+                token = token
             });
             return PostRequest(body);
         }
@@ -925,15 +925,15 @@ namespace StockWorker.Helper
         //     股票代码 000791.XSHE 000836.XSHE
         public string GetConceptStocks(string code, string date)
         {
-            if (string.IsNullOrEmpty(Token))
+            if (string.IsNullOrEmpty(token))
             {
-                throw new Exception("Token is empty");
+                throw new Exception("token is empty");
             }
 
             string body = JsonSerializer.Serialize(new
             {
                 method = "get_concept_stocks",
-                Token = Token,
+                token = token,
                 code = code,
                 date = date
             });
@@ -955,15 +955,15 @@ namespace StockWorker.Helper
         //     结束日期
         public string GetMoneyFlow(string code, string date, string end_date)
         {
-            if (string.IsNullOrEmpty(Token))
+            if (string.IsNullOrEmpty(token))
             {
-                throw new Exception("Token is empty");
+                throw new Exception("token is empty");
             }
 
             string body = JsonSerializer.Serialize(new
             {
                 method = "get_money_flow",
-                Token = Token,
+                token = token,
                 code = code,
                 date = date,
                 end_date = end_date
@@ -994,15 +994,15 @@ namespace StockWorker.Helper
         //     返回的结果顺序为生成时间的顺序 company_id,company_name,code,report_date 420600103,福建省青山纸业股份有限公司,600103.XSHG,2006-12-01
         public string GetBillboardList(string table, string columns, string conditions, int count)
         {
-            if (string.IsNullOrEmpty(Token))
+            if (string.IsNullOrEmpty(token))
             {
-                throw new Exception("Token is empty");
+                throw new Exception("token is empty");
             }
 
             string body = JsonSerializer.Serialize(new
             {
                 method = "run_query",
-                Token = Token,
+                token = token,
                 table = table,
                 columns = columns,
                 conditions = conditions,
@@ -1032,15 +1032,15 @@ namespace StockWorker.Helper
         //     2016-01-04,000001.XSHE,3472611852,152129217,169414153,594640,184100,317900,3479349123
         public string GetMtss(string code, string date, string end_date)
         {
-            if (string.IsNullOrEmpty(Token))
+            if (string.IsNullOrEmpty(token))
             {
-                throw new Exception("Token is empty");
+                throw new Exception("token is empty");
             }
 
             string body = JsonSerializer.Serialize(new
             {
                 method = "get_mtss",
-                Token = Token,
+                token = token,
                 code = code,
                 date = date,
                 end_date = end_date
@@ -1060,15 +1060,15 @@ namespace StockWorker.Helper
         //     返回指定日期上交所、深交所披露的的可融资标的列表 000001.XSHE 000002.XSHE
         public string GetMargincashStocks(string date)
         {
-            if (string.IsNullOrEmpty(Token))
+            if (string.IsNullOrEmpty(token))
             {
-                throw new Exception("Token is empty");
+                throw new Exception("token is empty");
             }
 
             string body = JsonSerializer.Serialize(new
             {
                 method = "get_margincash_stocks",
-                Token = Token,
+                token = token,
                 date = date
             });
             return PostRequest(body);
@@ -1086,15 +1086,15 @@ namespace StockWorker.Helper
         //     返回指定日期上交所、深交所披露的的可融券标的列表 000001.XSHE 000002.XSHE
         public string GetMarginsecStocks(string date)
         {
-            if (string.IsNullOrEmpty(Token))
+            if (string.IsNullOrEmpty(token))
             {
-                throw new Exception("Token is empty");
+                throw new Exception("token is empty");
             }
 
             string body = JsonSerializer.Serialize(new
             {
                 method = "get_marginsec_stocks",
-                Token = Token,
+                token = token,
                 date = date
             });
             return PostRequest(body);
@@ -1119,15 +1119,15 @@ namespace StockWorker.Helper
         //     2010-09-29,600000.XSHG,1175406872.0000,0.1024,0.1141
         public string GetLockedShares(string code, string date, string end_date)
         {
-            if (string.IsNullOrEmpty(Token))
+            if (string.IsNullOrEmpty(token))
             {
-                throw new Exception("Token is empty");
+                throw new Exception("token is empty");
             }
 
             string body = JsonSerializer.Serialize(new
             {
                 method = "get_locked_shares",
-                Token = Token,
+                token = token,
                 code = code,
                 date = date,
                 end_date = end_date
@@ -1150,15 +1150,15 @@ namespace StockWorker.Helper
         //     交易日日期 2018-10-09 2018-10-10
         public string GetTradeDays(string date, string end_date)
         {
-            if (string.IsNullOrEmpty(Token))
+            if (string.IsNullOrEmpty(token))
             {
-                throw new Exception("Token is empty");
+                throw new Exception("token is empty");
             }
 
             string body = JsonSerializer.Serialize(new
             {
                 method = "get_trade_days",
-                Token = Token,
+                token = token,
                 date = date,
                 end_date = end_date
             });
@@ -1173,15 +1173,15 @@ namespace StockWorker.Helper
         //     2005-01-04 2005-01-05
         public string GetAllTradeDays()
         {
-            if (string.IsNullOrEmpty(Token))
+            if (string.IsNullOrEmpty(token))
             {
-                throw new Exception("Token is empty");
+                throw new Exception("token is empty");
             }
 
             string body = JsonSerializer.Serialize(new
             {
                 method = "get_all_trade_days",
-                Token = Token
+                token = token
             });
             return PostRequest(body);
         }
@@ -1204,15 +1204,15 @@ namespace StockWorker.Helper
         //     AU1702.XSGE
         public string GetFutureContracts(string code, string date)
         {
-            if (string.IsNullOrEmpty(Token))
+            if (string.IsNullOrEmpty(token))
             {
-                throw new Exception("Token is empty");
+                throw new Exception("token is empty");
             }
 
             string body = JsonSerializer.Serialize(new
             {
                 method = "get_future_contracts",
-                Token = Token,
+                token = token,
                 code = code,
                 date = date
             });
@@ -1234,15 +1234,15 @@ namespace StockWorker.Helper
         //     主力合约对应的期货合约 AU1812.XSGE
         public string GetDominantFuture(string code, DateTime date)
         {
-            if (string.IsNullOrEmpty(Token))
+            if (string.IsNullOrEmpty(token))
             {
-                throw new Exception("Token is empty");
+                throw new Exception("token is empty");
             }
 
             string body = JsonSerializer.Serialize(new
             {
                 method = "get_dominant_future",
-                Token = Token,
+                token = token,
                 code = code,
                 date = date.ToString("yyyy-MM-dd")
             });
@@ -1275,15 +1275,15 @@ namespace StockWorker.Helper
         //     420600103,福建省青山纸业股份有限公司,600103.XSHG,2006-12-01
         public string RunQuery(string table, string columns, string conditions, int count)
         {
-            if (string.IsNullOrEmpty(Token))
+            if (string.IsNullOrEmpty(token))
             {
-                throw new Exception("Token is empty");
+                throw new Exception("token is empty");
             }
 
             string body = JsonSerializer.Serialize(new
             {
                 method = "run_query",
-                Token = Token,
+                token = token,
                 table = table,
                 columns = columns,
                 conditions = conditions,
@@ -1320,15 +1320,15 @@ namespace StockWorker.Helper
         //     000001.XSHE,2016-12-03,0.9198,1.5328,1717041.1250,1463118.0000
         public string GetFundamentals(string table, string columns, string code, string date, int count)
         {
-            if (string.IsNullOrEmpty(Token))
+            if (string.IsNullOrEmpty(token))
             {
-                throw new Exception("Token is empty");
+                throw new Exception("token is empty");
             }
 
             string body = JsonSerializer.Serialize(new
             {
                 method = "get_fundamentals",
-                Token = Token,
+                token = token,
                 table = table,
                 columns = columns,
                 code = code,
@@ -1349,15 +1349,15 @@ namespace StockWorker.Helper
         //     administration_expense_ttm,管理费用TTM,basics,基础科目及衍生类因子
         public string GetAllFactors()
         {
-            if (string.IsNullOrEmpty(Token))
+            if (string.IsNullOrEmpty(token))
             {
-                throw new Exception("Token is empty");
+                throw new Exception("token is empty");
             }
 
             string body = JsonSerializer.Serialize(new
             {
                 method = "get_all_factors",
-                Token = Token
+                token = token
             });
             return PostRequest(body);
         }
@@ -1384,15 +1384,15 @@ namespace StockWorker.Helper
         //     返回的结果顺序为生成时间的顺序 company_id,company_name,code,report_date 420600103,福建省青山纸业股份有限公司,600103.XSHG,2006-12-01
         public string GetFactorValues(string table, string columns, string conditions, int count)
         {
-            if (string.IsNullOrEmpty(Token))
+            if (string.IsNullOrEmpty(token))
             {
-                throw new Exception("Token is empty");
+                throw new Exception("token is empty");
             }
 
             string body = JsonSerializer.Serialize(new
             {
                 method = "run_query",
-                Token = Token,
+                token = token,
                 table = table,
                 columns = columns,
                 conditions = conditions,
@@ -1420,15 +1420,15 @@ namespace StockWorker.Helper
         //     股票代码,因子值 code,alpha_001 000001.XSHE,0.17
         public string GetAlpha101(string code, string func_name, string date)
         {
-            if (string.IsNullOrEmpty(Token))
+            if (string.IsNullOrEmpty(token))
             {
-                throw new Exception("Token is empty");
+                throw new Exception("token is empty");
             }
 
             string body = JsonSerializer.Serialize(new
             {
                 method = "get_alpha101",
-                Token = Token,
+                token = token,
                 code = code,
                 func_name = func_name,
                 date = date
@@ -1460,15 +1460,15 @@ namespace StockWorker.Helper
         //     000004.XSHE,-0.17000000
         public string GetAlpha191(string code, string func_name, string date)
         {
-            if (string.IsNullOrEmpty(Token))
+            if (string.IsNullOrEmpty(token))
             {
-                throw new Exception("Token is empty");
+                throw new Exception("token is empty");
             }
 
             string body = JsonSerializer.Serialize(new
             {
                 method = "get_alpha191",
-                Token = Token,
+                token = token,
                 code = code,
                 func_name = func_name,
                 date = date

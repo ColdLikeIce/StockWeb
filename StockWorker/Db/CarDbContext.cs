@@ -40,5 +40,7 @@ namespace StockWorker.Db
 
         public DbSet<StockData> StockData { get; set; }
         public DbSet<StockGroup> StockGroup { get; set; }
+        public DbSet<InsertStock> InsertStock { get; set; }
+        public DbSet<DateLog> DateLog { get; set; }
     }
 }

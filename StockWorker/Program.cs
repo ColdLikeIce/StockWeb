@@ -57,10 +57,13 @@ public class Program
                     logging.ClearProviders(); // 清除默认日志提供程序
                     logging.AddSerilog(); // 使用 Serilog
                 });
-
+                //services.AddAutoIoc(typeof(ISingletonDependency), LifeCycle.Singleton);
                 // 配置定时服务
                 services.AddAutoIoc(typeof(IScopedDependency), LifeCycle.Scoped);
+
+                services.AddRedis(hostContext.Configuration);
                 services.AddHostedService<StockDataWorker>();
+
                 //services.AddHostedService<Worker>();
                 services.AddHyTripEntityFramework<CarDbContext>(options =>
                 {

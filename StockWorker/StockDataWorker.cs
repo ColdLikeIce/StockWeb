@@ -31,7 +31,13 @@ namespace StockWorker
             {
                 try
                 {
-                    await _domain.RunHotStock();
+                    // 判断当前时间是否在范围内
+                    if (await _domain.JustRun())
+                    {
+                        Log.Information($"开始执行任务");
+                        await _domain.RunHotStock();
+                    }
+
                     await Task.Delay(10000, stoppingToken);
                 }
                 catch (Exception ex)
